@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Le Vender DXB — Lavender High End Watches & Jewellery | Dubai</title>
+  <meta name="description" content="Dubai's premier destination for ultra-luxury timepieces. Richard Mille, Rolex, Bvlgari, Breitling. Located in Deira, Dubai." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Three.js Core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- OrbitControls -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- GLTFLoader -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #F0D060;
+      --gold-dim: #9A7D22;
+      --obsidian: #050505;
+      --charcoal: #121212;
+      --charcoal-mid: #1A1A1A;
+      --charcoal-light: #242424;
+      --glass: rgba(212,175,55,0.06);
+      --glass-border: rgba(212,175,55,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--obsidian);
+      color: #E8E0D0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom Cursor */
+    #cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: difference;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(212,175,55,0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease-out, width 0.25s, height 0.25s;
+    }
+    body:hover #cursor { opacity: 1; }
+
+    /* ===================== PRELOADER ===================== */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      background: var(--obsidian);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #preloader-logo {
+      opacity: 0;
+      transform: scale(1.0);
+      max-width: 180px;
+      width: 40vw;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      filter: brightness(1.1);
+      position: relative;
+      z-index: 2;
+    }
+    #preloader-svg {
+      position: absolute;
+      width: 100vw;
+      height: 2px;
+      top: 50%;
+      left: 0;
+      transform: translateY(50px);
+      overflow: visible;
+    }
+    #preloader-line {
+      stroke: var(--gold);
+      stroke-width: 1;
+      fill: none;
+      stroke-dasharray: 100vw;
+      stroke-dashoffset: 100vw;
+    }
+    #preloader-brand {
+      opacity: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.45em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-top: 14px;
+      position: relative;
+      z-index: 2;
+    }
+    #preloader-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===================== SCROLLBAR ===================== */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--obsidian); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+    /* ===================== TYPOGRAPHY ===================== */
+    .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+    .gold { color: var(--gold); }
+    .gold-border { border-color: var(--gold); }
+
+    /* ===================== LAYOUT UTILITIES ===================== */
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.35;
+    }
+
+    /* ===================== NAV ===================== */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.4s, padding 0.4s;
+      backdrop-filter: blur(0px);
+    }
+    #navbar.scrolled {
+      background: rgba(5,5,5,0.92);
+      backdrop-filter: blur(12px);
+      padding: 14px 40px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .nav-logo img {
+      height: 44px;
+      object-fit: contain;
+      filter: brightness(1.15);
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(232,224,208,0.7);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ===================== HERO ===================== */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('hero-la.jpg');
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.08);
+      transition: transform 8s ease-out;
+      filter: brightness(0.45);
+    }
+    #hero-bg.loaded { transform: scale(1.0); }
+    #hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(5,5,5,0.3) 0%,
+        rgba(5,5,5,0.1) 40%,
+        rgba(5,5,5,0.55) 80%,
+        rgba(5,5,5,0.95) 100%
+      );
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+      max-width: 900px;
+    }
+    .hero-eyebrow {
+      font-size: 0.58rem;
+      letter-spacing: 0.65em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 22px;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .hero-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(3.2rem, 8vw, 7rem);
+      font-weight: 300;
+      line-height: 1.0;
+      color: #F5EDD5;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      transform: translateY(30px);
+      margin-bottom: 12px;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+    .hero-subtitle {
+      font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(232,224,208,0.65);
+      opacity: 0;
+      transform: translateY(20px);
+      margin-bottom: 46px;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 44px;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-size: 0.65rem;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.35s, color 0.35s;
+      opacity: 0;
+      transform: translateY(20px);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+    }
+    .hero-cta:hover {
+      background: var(--gold);
+      color: var(--obsidian);
+    }
+    .hero-scroll-indicator {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      z-index: 2;
+    }
+    .hero-scroll-indicator span {
+      font-size: 0.52rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(212,175,55,0.6);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* ===================== SECTION HEADERS ===================== */
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 300;
+      color: #F5EDD5;
+      line-height: 1.1;
+      letter-spacing: 0.02em;
+    }
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    /* ===================== 3D SHOWROOM ===================== */
+    #showroom {
+      padding: 100px 0;
+      background: linear-gradient(180deg, var(--obsidian) 0%, var(--charcoal) 50%, var(--obsidian) 100%);
+      position: relative;
+    }
+    .showroom-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      padding: 0 24px;
+    }
+    .watch-tab {
+      padding: 12px 32px;
+      font-size: 0.58rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(232,224,208,0.45);
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
+      transition: all 0.3s;
+      background: transparent;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .watch-tab:hover {
+      color: var(--gold);
+      border-bottom-color: rgba(212,175,55,0.5);
+    }
+    .watch-tab.active {
+      color: var(--gold);
+      border: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--gold);
+      background: var(--glass);
+    }
+    #canvas-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      aspect-ratio: 16/10;
+      background: radial-gradient(ellipse at center, #1a1208 0%, #080604 60%, #050505 100%);
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+    }
+    #three-canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    #model-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, #1a1208 0%, #050505 100%);
+      z-index: 5;
+      transition: opacity 0.5s;
+    }
+    #model-loading.hidden { opacity: 0; pointer-events: none; }
+    .loading-ring {
+      width: 56px; height: 56px;
+      border: 1px solid rgba(212,175,55,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 1.2s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading-watch-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    #loading-watch-sub {
+      font-size: 0.58rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(212,175,55,0.4);
+    }
+    .canvas-hint {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(212,175,55,0.3);
+    }
+    #model-error {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 6;
+      text-align: center;
+      padding: 40px;
+    }
+    #model-error.visible { display: flex; }
+    #model-error-icon {
+      width: 64px; height: 64px;
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--gold);
+    }
+    #model-error-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      color: #F5EDD5;
+      margin-bottom: 8px;
+    }
+    #model-error-sub {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: rgba(232,224,208,0.4);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    #model-error-brand {
+      font-size: 0.58rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--glass-border);
+      padding: 10px 24px;
+    }
+
+    /* ===================== FEATURES GRID ===================== */
+    #features {
+      padding: 100px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .feature-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(8px);
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      transition: border-color 0.3s, background 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover {
+      border-color: rgba(212,175,55,0.4);
+      background: rgba(212,175,55,0.08);
+      transform: translateY(-3px);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border: 1px solid rgba(212,175,55,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+    }
+    .feature-title {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #E8E0D0;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .feature-desc {
+      font-size: 0.72rem;
+      color: rgba(232,224,208,0.45);
+      line-height: 1.8;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===================== TESTIMONIALS ===================== */
+    #testimonials {
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--charcoal);
+    }
+    .testimonials-track-wrapper {
+      position: relative;
+      overflow: hidden;
+      padding: 0 40px;
+    }
+    .testimonials-track {
+      display: flex;
+      transition: transform 0.65s cubic-bezier(0.77,0,0.18,1);
+    }
+    .testimonial-slide {
+      min-width: 100%;
+      padding: 0 20px;
+    }
+    @media (min-width: 768px) {
+      .testimonial-slide { min-width: 50%; }
+    }
+    @media (min-width: 1024px) {
+      .testimonial-slide { min-width: 33.333%; }
+    }
+    .testimonial-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      padding: 40px 32px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+    .testimonial-quote-mark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem;
+      line-height: 0.6;
+      color: var(--gold);
+      opacity: 0.2;
+      position: absolute;
+      top: 24px;
+      left: 24px;
+    }
+    .stars {
+      display: flex;
+      gap: 3px;
+      color: var(--gold);
+      font-size: 0.75rem;
+    }
+    .testimonial-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      color: #D8D0C0;
+      line-height: 1.75;
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+    .testimonial-author {
+      font-size: 0.6rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+    }
+    .testimonial-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .t-btn {
+      width: 44px; height: 44px;
+      border: 1px solid rgba(212,175,55,0.3);
+      background: transparent;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .t-btn:hover {
+      background: var(--glass);
+      border-color: var(--gold);
+    }
+    .t-dots {
+      display: flex;
+      gap: 8px;
+    }
+    .t-dot {
+      width: 6px; height: 6px;
+      background: rgba(212,175,55,0.25);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s, width 0.3s;
+    }
+    .t-dot.active {
+      background: var(--gold);
+      width: 20px;
+      border-radius: 3px;
+    }
+
+    /* ===================== BOUTIQUE INFO ===================== */
+    #info {
+      padding: 100px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .hours-grid {
+      border: 1px solid var(--glass-border);
+    }
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(212,175,55,0.08);
+      transition: background 0.25s;
+    }
+    .hours-row:last-child { border-bottom: none; }
+    .hours-row:hover { background: var(--glass); }
+    .hours-day {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(232,224,208,0.55);
+      font-weight: 400;
+    }
+    .hours-time {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+    .address-block {
+      border: 1px solid var(--glass-border);
+      padding: 36px 32px;
+      background: var(--glass);
+    }
+    .address-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+    .address-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 300;
+      color: #E8E0D0;
+      line-height: 1.7;
+    }
+    .map-placeholder {
+      width: 100%;
+      height: 200px;
+      border: 1px solid var(--glass-border);
+      background: var(--charcoal-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    /* ===================== FOOTER ===================== */
+    #footer {
+      border-top: 1px solid rgba(212,175,55,0.12);
+      padding: 40px;
+      text-align: center;
+    }
+    .footer-logo img {
+      height: 48px;
+      object-fit: contain;
+      filter: brightness(1.1);
+      margin: 0 auto 20px;
+    }
+    .footer-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: rgba(212,175,55,0.6);
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+    }
+    .footer-copy {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: rgba(232,224,208,0.25);
+    }
+
+    /* ===================== FLOATING WA BUTTON ===================== */
+    #wa-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--gold);
+      color: var(--obsidian);
+      padding: 14px 22px;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      font-weight: 600;
+      text-decoration: none;
+      font-family: 'Montserrat', sans-serif;
+      transition: background 0.3s, transform 0.3s;
+      box-shadow: 0 8px 32px rgba(212,175,55,0.25);
+    }
+    #wa-btn:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+    }
+    #wa-btn svg {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ===================== GRAIN OVERLAY ===================== */
+    #grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9990;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* ===================== REVEAL ANIMATIONS ===================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* mobile nav */
+    @media (max-width: 767px) {
+      .nav-links { display: none; }
+      #navbar { padding: 16px 20px; }
+      #features { padding: 80px 20px; }
+      #info { padding: 80px 20px; }
+      #wa-btn { bottom: 20px; right: 20px; padding: 12px 16px; }
+      .showroom-tabs { gap: 0; }
+      .watch-tab { padding: 10px 16px; font-size: 0.52rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Grain -->
+<div id="grain"></div>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ======================== PRELOADER ======================== -->
+<div id="preloader">
+  <div id="preloader-logo-wrap">
+    <img id="preloader-logo" src="lalogo.jpg" alt="Le Vender DXB" />
+    <div id="preloader-brand">Le Vender — Dubai</div>
+  </div>
+  <svg id="preloader-svg" viewBox="0 0 1440 2" preserveAspectRatio="none">
+    <line id="preloader-line" x1="0" y1="1" x2="1440" y2="1" />
+  </svg>
+</div>
+
+<!-- ======================== NAVBAR ======================== -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <a href="#hero"><img src="lalogo.jpg" alt="Le Vender DXB" /></a>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#showroom">Collection</a></li>
+    <li><a href="#features">Services</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#info">Boutique</a></li>
+    <li><a href="https://lavender-dxb.com" target="_blank" rel="noopener" style="color:var(--gold)">Visit Website</a></li>
+  </ul>
+</nav>
+
+<!-- ======================== HERO ======================== -->
+<section id="hero">
+  <div id="hero-bg"></div>
+  <div id="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Dubai · Deira · Al Ras</p>
+    <h1 class="hero-title">The Art of <em>Time</em><br>Perfected</h1>
+    <p class="hero-subtitle">Lavender High End Watches &amp; Jewellery</p>
+    <a href="https://lavender-dxb.com" target="_blank" rel="noopener" class="hero-cta">
+      Enter the Showroom
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="hero-scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ======================== 3D SHOWROOM ======================== -->
+<section id="showroom">
+  <div style="max-width:1100px;margin:0 auto;padding:0 40px 0;">
+    <div class="section-header reveal">
+      <p class="section-label" style="margin-bottom:14px">Interactive 3D Showcase</p>
+      <h2 class="section-title">The <em>Collection</em></h2>
+      <div class="divider" style="max-width:200px;margin:24px auto 0;"></div>
+    </div>
+  </div>
+  <div class="showroom-tabs" id="watch-tabs">
+    <button class="watch-tab active" data-model="richardmille.glb" data-name="Richard Mille">Richard Mille</button>
+    <button class="watch-tab" data-model="rolex.glb" data-name="Rolex">Rolex</button>
+    <button class="watch-tab" data-model="bvlgari.glb" data-name="Bvlgari">Bvlgari</button>
+    <button class="watch-tab" data-model="breitling.glb" data-name="Breitling">Breitling</button>
+  </div>
+  <div style="max-width:900px;margin:0 auto;padding:0 20px;">
+    <div id="canvas-wrapper" class="reveal">
+      <canvas id="three-canvas"></canvas>
+      <div id="model-loading">
+        <div class="loading-ring"></div>
+        <div id="loading-watch-name">Richard Mille</div>
+        <div id="loading-watch-sub">Rendering Model</div>
+      </div>
+      <div id="model-error">
+        <div id="model-error-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        </div>
+        <div id="model-error-title">Richard Mille</div>
+        <div id="model-error-sub">Model file not found</div>
+        <div id="model-error-brand">Place .glb file in root directory</div>
+      </div>
+    </div>
+    <p class="canvas-hint">Drag to rotate · Scroll to zoom · Double-click to reset</p>
+  </div>
+</section>
+
+<!-- ======================== FEATURES GRID ======================== -->
+<section id="features">
+  <div class="section-header reveal" style="max-width:1200px;margin-left:auto;margin-right:auto;">
+    <p class="section-label" style="margin-bottom:14px">Boutique Experience</p>
+    <h2 class="section-title">Our <em>Services</em></h2>
+    <div class="divider" style="max-width:200px;margin:24px auto 0;"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(1,1fr);gap:2px;" id="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon"><i data-lucide="truck" style="width:20px;height:20px;"></i></div>
+      <div>
+        <div class="feature-title">Delivery Available</div>
+        <div class="feature-desc">White-glove delivery service to your door, anywhere in Dubai and the UAE.</div>
+      </div>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.05s">
+      <div class="feature-icon"><i data-lucide="wrench" style="width:20px;height:20px;"></i></div>
+      <div>
+        <div class="feature-title">Onsite Services</div>
+        <div class="feature-desc">Expert authentication, servicing, and appraisal performed directly at our boutique.</div>
+      </div>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.1s">
+      <div class="feature-icon"><i data-lucide="accessibility" style="width:20px;height:20px;"></i></div>
+      <div>
+        <div class="feature-title">Wheelchair Accessible Entrance</div>
+        <div class="feature-desc">Our boutique is fully accessible, welcoming every valued client with ease.</div>
+      </div>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.15s">
+      <div class="feature-icon"><i data-lucide="parking-circle" style="width:20px;height:20px;"></i></div>
+      <div>
+        <div class="feature-title">Wheelchair Accessible Parking</div>
+        <div class="feature-desc">Dedicated accessible parking spaces available directly adjacent to our entrance.</div>
+      </div>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.2s">
+      <div class="feature-icon"><i data-lucide="clock" style="width:20px;height:20px;"></i></div>
+      <div>
+        <div class="feature-title">Quick Visit Planning</div>
+        <div class="feature-desc">Book a private viewing appointment for an uninterrupted, curated experience.</div>
+      </div>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.25s">
+      <div class="feature-icon"><i data-lucide="credit-card" style="width:20px;height:20px;"></i></div>
+      <div>
+        <div class="feature-title">All Payment Methods</div>
+        <div class="feature-desc">Accepts all major credit &amp; debit cards and NFC contactless mobile payments.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== TESTIMONIALS ======================== -->
+<section id="testimonials">
+  <div style="max-width:1200px;margin:0 auto;padding:0 40px 0;">
+    <div class="section-header reveal">
+      <p class="section-label" style="margin-bottom:14px">Client Voices</p>
+      <h2 class="section-title">Their <em>Experiences</em></h2>
+      <div class="divider" style="max-width:200px;margin:24px auto 0;"></div>
+    </div>
+  </div>
+  <div class="testimonials-track-wrapper">
+    <div class="testimonials-track" id="t-track">
+      <div class="testimonial-slide">
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">&ldquo;</div>
+          <div class="stars">★★★★★</div>
+          <div class="testimonial-text">Great experience at Landver. I purchased my Rolex today, and everything was excellent from start to finish. Friendly staff, professional service, and a smooth process.</div>
+          <div class="testimonial-author">— Morad Mustafa</div>
+        </div>
+      </div>
+      <div class="testimonial-slide">
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">&ldquo;</div>
+          <div class="stars">★★★★★</div>
+          <div class="testimonial-text">Amazing experience. Saif and Islam made sure that all my queries are settled. Much recommended.</div>
+          <div class="testimonial-author">— Osama Otaibi</div>
+        </div>
+      </div>
+      <div class="testimonial-slide">
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">&ldquo;</div>
+          <div class="stars">★★★★★</div>
+          <div class="testimonial-text">Great team, honest and professional. Thanks to Mr. Taleb and Mr. Islam.</div>
+          <div class="testimonial-author">— Wael Kotb</div>
+        </div>
+      </div>
+      <div class="testimonial-slide">
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">&ldquo;</div>
+          <div class="stars">★★★★★</div>
+          <div class="testimonial-text" style="font-family:'Cormorant Garamond',serif;direction:rtl;text-align:right;">أحلى و أرقى معاملة احترافيه كل الشكر للأخ اسلام و أمير و طالب و عثمان على هذا الاستقبال الرائع و ان شاء الله تجربه تتكرر</div>
+          <div class="testimonial-author">— Ahmed Seifeldin</div>
+        </div>
+      </div>
+      <div class="testimonial-slide">
+        <div class="testimonial-card">
+          <div class="testimonial-quote-mark">&ldquo;</div>
+          <div class="stars">★★★★★</div>
+          <div class="testimonial-text" style="font-family:'Cormorant Garamond',serif;direction:rtl;text-align:right;">فحصت الساعه عندهم تعامل راقي جدا احرجونا بكرمهم ❤️</div>
+          <div class="testimonial-author">— Mohammad Alghamdi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="testimonial-controls">
+    <button class="t-btn" id="t-prev" aria-label="Previous">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="t-dots" id="t-dots"></div>
+    <button class="t-btn" id="t-next" aria-label="Next">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ======================== BOUTIQUE INFO ======================== -->
+<section id="info">
+  <div class="section-header reveal">
+    <p class="section-label" style="margin-bottom:14px">Find Us</p>
+    <h2 class="section-title">The <em>Boutique</em></h2>
+    <div class="divider" style="max-width:200px;margin:24px auto 0;"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr;gap:40px;max-width:1100px;margin:0 auto;" id="info-grid">
+    <div class="reveal">
+      <div class="address-block" style="margin-bottom:20px;">
+        <div class="address-label">Physical Address</div>
+        <div class="address-text">Al Khor St — Al Ras<br>Deira, Dubai<br>United Arab Emirates</div>
+      </div>
+      <div class="map-placeholder">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3607.3097657234!2d55.29898!3d25.285!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f5d2989000001%3A0x1234567890abcdef!2sAl%20Ras%2C%20Deira%2C%20Dubai!5e0!3m2!1sen!2sae!4v1600000000000"
+          width="100%" height="200" style="border:0;filter:grayscale(1) invert(0.85) sepia(0.2);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Le Vender DXB Location"></iframe>
+      </div>
+    </div>
+    <div class="reveal" style="transition-delay:0.1s">
+      <p class="section-label" style="margin-bottom:20px">Operating Hours</p>
+      <div class="hours-grid">
+        <div class="hours-row">
+          <span class="hours-day">Sunday</span>
+          <span class="hours-time">17:00 – 21:00</span>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Monday</span>
+          <span class="hours-time">12:00 – 21:00</span>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Tuesday</span>
+          <span class="hours-time">12:00 – 21:00</span>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Wednesday</span>
+          <span class="hours-time">12:00 – 21:00</span>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Thursday</span>
+          <span class="hours-time">12:00 – 21:00</span>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Friday</span>
+          <span class="hours-time">15:00 – 21:00</span>
+        </div>
+        <div class="hours-row">
+          <span class="hours-day">Saturday</span>
+          <span class="hours-time">12:00 – 21:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== FOOTER ======================== -->
+<footer id="footer">
+  <div class="divider" style="max-width:600px;margin:0 auto 48px;"></div>
+  <div class="footer-logo">
+    <img src="lalogo.jpg" alt="Le Vender DXB" />
+  </div>
+  <div class="footer-tagline">Where Time Becomes Art</div>
+  <div class="footer-copy">© 2025 Lavender High End Watches & Jewellery · Le Vender DXB · All Rights Reserved · Dubai, UAE</div>
+  <div style="margin-top:20px;">
+    <a href="https://lavender-dxb.com" target="_blank" rel="noopener" style="font-size:0.58rem;letter-spacing:0.35em;text-transform:uppercase;color:rgba(212,175,55,0.45);text-decoration:none;">lavender-dxb.com</a>
+  </div>
+</footer>
+
+<!-- ======================== FLOATING WHATSAPP ======================== -->
+<a id="wa-btn" href="https://wa.me/971561373333?text=Hello%2C%20I%27m%20interested%20in%20your%20collection%20at%20Le%20Vender%20DXB." target="_blank" rel="noopener" aria-label="Contact via WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+  WhatsApp
+</a>
+
+<script>
+// ============================================================
+// SECTION A: CURSOR
+// ============================================================
+(function() {
+  var cursor = document.getElementById('cursor');
+  var ring = document.getElementById('cursor-ring');
+  var mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', function(e) {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('a,button,.watch-tab,.t-btn').forEach(function(el) {
+    el.addEventListener('mouseenter', function() {
+      cursor.style.width = '6px';
+      cursor.style.height = '6px';
+      ring.style.width = '52px';
+      ring.style.height = '52px';
+    });
+    el.addEventListener('mouseleave', function() {
+      cursor.style.width = '10px';
+      cursor.style.height = '10px';
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
+  });
+})();
+
+// ============================================================
+// SECTION B: PRELOADER
+// ============================================================
+(function() {
+  var preloader = document.getElementById('preloader');
+  var line = document.getElementById('preloader-line');
+  var logo = document.getElementById('preloader-logo');
+  var brand = document.getElementById('preloader-brand');
+
+  // Use SVG viewBox width for dashoffset
+  var lineLength = 1440;
+  line.style.strokeDasharray = lineLength;
+  line.style.strokeDashoffset = lineLength;
+
+  function playTickSound() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      function tick() {
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.frequency.setValueAtTime(3200, ctx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.04);
+        g.gain.setValueAtTime(0.18, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.06);
+        o.start(ctx.currentTime);
+        o.stop(ctx.currentTime + 0.08);
+      }
+      tick();
+      setTimeout(tick, 90);
+    } catch(e) { /* Audio not critical */ }
+  }
+
+  // Animate line: 0 → 1.5s
+  setTimeout(function() {
+    line.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)';
+    line.style.strokeDashoffset = '0';
+  }, 100);
+
+  // Logo fade in: 1.5s
+  setTimeout(function() {
+    logo.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    logo.style.opacity = '1';
+    brand.style.transition = 'opacity 0.6s ease 0.2s';
+    brand.style.opacity = '1';
+    playTickSound();
+  }, 1500);
+
+  // Macro zoom: 2.5s
+  setTimeout(function() {
+    logo.style.transition = 'transform 0.6s cubic-bezier(0.4,0,0.2,1)';
+    logo.style.transform = 'scale(1.06)';
+  }, 2500);
+
+  // Hand-off: 3.0s — wipe up
+  setTimeout(function() {
+    if (typeof gsap !== 'undefined') {
+      gsap.to(preloader, {
+        y: '-100%',
+        duration: 0.9,
+        ease: 'power4.inOut',
+        onComplete: function() {
+          preloader.style.display = 'none';
+          initHeroAnimations();
+          initHeroBgReveal();
+        }
+      });
+    } else {
+      preloader.style.transition = 'transform 0.9s cubic-bezier(0.77,0,0.18,1)';
+      preloader.style.transform = 'translateY(-100%)';
+      setTimeout(function() {
+        preloader.style.display = 'none';
+        initHeroAnimations();
+        initHeroBgReveal();
+      }, 900);
+    }
+  }, 3000);
+})();
+
+// ============================================================
+// SECTION C: HERO ANIMATIONS
+// ============================================================
+function initHeroBgReveal() {
+  var bg = document.getElementById('hero-bg');
+  if (bg) { bg.classList.add('loaded'); }
+}
+
+function initHeroAnimations() {
+  var eyebrow = document.querySelector('.hero-eyebrow');
+  var title = document.querySelector('.hero-title');
+  var subtitle = document.querySelector('.hero-subtitle');
+  var cta = document.querySelector('.hero-cta');
+  var scroll = document.querySelector('.hero-scroll-indicator');
+
+  if (typeof gsap !== 'undefined') {
+    gsap.to(eyebrow, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.1 });
+    gsap.to(title, { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out', delay: 0.3 });
+    gsap.to(subtitle, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.55 });
+    gsap.to(cta, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.75 });
+    gsap.to(scroll, { opacity: 1, duration: 0.8, ease: 'power3.out', delay: 1.2 });
+  } else {
+    [eyebrow, title, subtitle, cta, scroll].forEach(function(el, i) {
+      if (!el) return;
+      setTimeout(function() {
+        el.style.transition = 'opacity 0.8s, transform 0.8s';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      }, i * 200 + 100);
+    });
+  }
+}
+
+// ============================================================
+// SECTION D: NAVBAR SCROLL
+// ============================================================
+(function() {
+  var nav = document.getElementById('navbar');
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > 80) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  }, { passive: true });
+})();
+
+// ============================================================
+// SECTION E: SCROLL REVEAL
+// ============================================================
+(function() {
+  var revealEls = document.querySelectorAll('.reveal');
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(function(el) { io.observe(el); });
+})();
+
+// ============================================================
+// SECTION F: FEATURES GRID RESPONSIVE
+// ============================================================
+(function() {
+  var grid = document.getElementById('features-grid');
+  function setGridCols() {
+    var w = window.innerWidth;
+    if (w >= 1024) {
+      grid.style.gridTemplateColumns = 'repeat(3,1fr)';
+    } else if (w >= 640) {
+      grid.style.gridTemplateColumns = 'repeat(2,1fr)';
+    } else {
+      grid.style.gridTemplateColumns = 'repeat(1,1fr)';
+    }
+  }
+  setGridCols();
+  window.addEventListener('resize', setGridCols, { passive: true });
+
+  var infoGrid = document.getElementById('info-grid');
+  function setInfoCols() {
+    var w = window.innerWidth;
+    if (w >= 768) {
+      infoGrid.style.gridTemplateColumns = '1fr 1fr';
+    } else {
+      infoGrid.style.gridTemplateColumns = '1fr';
+    }
+  }
+  setInfoCols();
+  window.addEventListener('resize', setInfoCols, { passive: true });
+})();
+
+// ============================================================
+// SECTION G: TESTIMONIAL SLIDER
+// ============================================================
+(function() {
+  var track = document.getElementById('t-track');
+  var slides = track.querySelectorAll('.testimonial-slide');
+  var dotsContainer = document.getElementById('t-dots');
+  var prevBtn = document.getElementById('t-prev');
+  var nextBtn = document.getElementById('t-next');
+  var current = 0;
+  var visibleCount = 1;
+  var autoInterval = null;
+
+  function getVisible() {
+    var w = window.innerWidth;
+    if (w >= 1024) return 3;
+    if (w >= 768) return 2;
+    return 1;
+  }
+
+  function buildDots() {
+    visibleCount = getVisible();
+    var totalGroups = Math.ceil(slides.length / visibleCount);
+    dotsContainer.innerHTML = '';
+    for (var i = 0; i < totalGroups; i++) {
+      var dot = document.createElement('div');
+      dot.className = 't-dot' + (i === Math.floor(current / visibleCount) ? ' active' : '');
+      (function(idx) {
+        dot.addEventListener('click', function() {
+          current = idx * visibleCount;
+          update();
+        });
+      })(i);
+      dotsContainer.appendChild(dot);
+    }
+  }
+
+  function update() {
+    visibleCount = getVisible();
+    var slideW = 100 / visibleCount;
+    slides.forEach(function(s) { s.style.minWidth = slideW + '%'; });
+    var max = slides.length - visibleCount;
+    if (current > max) current = max;
+    if (current < 0) current = 0;
+    track.style.transform = 'translateX(-' + (current * slideW) + '%)';
+    var dots = dotsContainer.querySelectorAll('.t-dot');
+    var groupIdx = Math.floor(current / visibleCount);
+    dots.forEach(function(d, i) {
+      d.classList.toggle('active', i === groupIdx);
+    });
+  }
+
+  function next() {
+    visibleCount = getVisible();
+    current += visibleCount;
+    if (current >= slides.length) current = 0;
+    update();
+  }
+  function prev() {
+    visibleCount = getVisible();
+    current -= visibleCount;
+    if (current < 0) {
+      current = Math.floor((slides.length - 1) / visibleCount) * visibleCount;
+    }
+    update();
+  }
+
+  nextBtn.addEventListener('click', function() { next(); resetAuto(); });
+  prevBtn.addEventListener('click', function() { prev(); resetAuto(); });
+
+  function resetAuto() {
+    clearInterval(autoInterval);
+    autoInterval = setInterval(next, 5000);
+  }
+
+  window.addEventListener('resize', function() {
+    buildDots();
+    update();
+  }, { passive: true });
+
+  buildDots();
+  update();
+  autoInterval = setInterval(next, 5000);
+})();
+
+// ============================================================
+// SECTION H: THREE.JS 3D ENGINE
+// ============================================================
+(function() {
+  var models = [
+    { file: 'richardmille.glb', name: 'Richard Mille', brand: 'RM · Tourbillon' },
+    { file: 'rolex.glb', name: 'Rolex', brand: 'Oyster Perpetual' },
+    { file: 'bvlgari.glb', name: 'Bvlgari', brand: 'Octo Finissimo' },
+    { file: 'breitling.glb', name: 'Breitling', brand: 'Navitimer' }
+  ];
+
+  var currentModelIndex = 0;
+  var currentMesh = null;
+  var isLoading = false;
+
+  var wrapper = document.getElementById('canvas-wrapper');
+  var canvas = document.getElementById('three-canvas');
+  var loadingEl = document.getElementById('model-loading');
+  var loadingName = document.getElementById('loading-watch-name');
+  var loadingWatchSub = document.getElementById('loading-watch-sub');
+  var errorEl = document.getElementById('model-error');
+  var errorTitle = document.getElementById('model-error-title');
+  var errorSub = document.getElementById('model-error-sub');
+  var errorBrand = document.getElementById('model-error-brand');
+
+  // Renderer
+  var renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    alpha: true
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  // Scene
+  var scene = new THREE.Scene();
+  scene.background = null;
+
+  // Camera
+  var camera = new THREE.PerspectiveCamera(40, wrapper.clientWidth / wrapper.clientHeight, 0.01, 100);
+  camera.position.set(0, 0.5, 3.5);
+
+  // Controls
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.06;
+  controls.minDistance = 1.2;
+  controls.maxDistance = 6.0;
+  controls.maxPolarAngle = Math.PI * 0.78;
+  controls.minPolarAngle = Math.PI * 0.1;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.8;
+  controls.enablePan = false;
+
+  // Double-click to reset
+  renderer.domElement.addEventListener('dblclick', function() {
+    if (typeof gsap !== 'undefined') {
+      gsap.to(camera.position, { x: 0, y: 0.5, z: 3.5, duration: 1.0, ease: 'power3.inOut' });
+    } else {
+      camera.position.set(0, 0.5, 3.5);
+    }
+    controls.reset();
+  });
+
+  // Lighting
+  var ambient = new THREE.AmbientLight(0xffeebb, 0.25);
+  scene.add(ambient);
+
+  var keyLight = new THREE.DirectionalLight(0xffeaa7, 2.2);
+  keyLight.position.set(2, 4, 3);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.near = 0.1;
+  keyLight.shadow.camera.far = 20;
+  scene.add(keyLight);
+
+  var fillLight = new THREE.DirectionalLight(0xd4af37, 0.6);
+  fillLight.position.set(-3, 1, 1);
+  scene.add(fillLight);
+
+  var rimLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  rimLight.position.set(0, 2, -4);
+  scene.add(rimLight);
+
+  var groundLight = new THREE.PointLight(0xd4af37, 0.3, 8);
+  groundLight.position.set(0, -1, 1);
+  scene.add(groundLight);
+
+  // Loader
+  var loader = new THREE.GLTFLoader();
+
+  function showLoading(name) {
+    loadingEl.classList.remove('hidden');
+    loadingEl.style.opacity = '1';
+    loadingName.textContent = name;
+    loadingWatchSub.textContent = 'Rendering Model';
+    errorEl.classList.remove('visible');
+  }
+
+  function hideLoading() {
+    loadingEl.style.opacity = '0';
+    setTimeout(function() {
+      loadingEl.classList.add('hidden');
+    }, 500);
+  }
+
+  function showError(modelData) {
+    loadingEl.classList.add('hidden');
+    errorEl.classList.add('visible');
+    errorTitle.textContent = modelData.name;
+    errorSub.textContent = 'Model file not found';
+    errorBrand.textContent = 'Place ' + modelData.file + ' in root directory';
+  }
+
+  function disposeMesh(obj) {
+    if (!obj) return;
+    obj.traverse(function(child) {
+      if (child.isMesh) {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach(function(m) { m.dispose(); });
+          } else {
+            child.material.dispose();
+          }
+        }
+      }
+    });
+    scene.remove(obj);
+  }
+
+  function loadModel(index) {
+    if (isLoading) return;
+    isLoading = true;
+    currentModelIndex = index;
+    var modelData = models[index];
+
+    showLoading(modelData.name);
+    errorEl.classList.remove('visible');
+
+    if (currentMesh) {
+      var outMesh = currentMesh;
+      if (typeof gsap !== 'undefined') {
+        gsap.to(outMesh.scale, {
+          x: 0, y: 0, z: 0,
+          duration: 0.4,
+          ease: 'power2.in',
+          onComplete: function() {
+            disposeMesh(outMesh);
+          }
+        });
+        gsap.to(outMesh, { duration: 0.35, ease: 'power2.in' });
+      } else {
+        disposeMesh(outMesh);
+      }
+      currentMesh = null;
+    }
+
+    try {
+      loader.load(
+        modelData.file,
+        function(gltf) {
+          var model = gltf.scene;
+
+          // Auto-center and scale
+          var box = new THREE.Box3().setFromObject(model);
+          var center = box.getCenter(new THREE.Vector3());
+          var size = box.getSize(new THREE.Vector3());
+          var maxDim = Math.max(size.x, size.y, size.z);
+          var scale = 1.8 / maxDim;
+          model.scale.setScalar(scale);
+          model.position.sub(center.multiplyScalar(scale));
+
+          model.traverse(function(child) {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              if (child.material) {
+                if (Array.isArray(child.material)) {
+                  child.material.forEach(function(mat) {
+                    mat.envMapIntensity = 1.4;
+                    mat.needsUpdate = true;
+                  });
+                } else {
+                  child.material.envMapIntensity = 1.4;
+                  child.material.needsUpdate = true;
+                }
+              }
+            }
+          });
+
+          // Animate in
+          if (typeof gsap !== 'undefined') {
+            model.scale.setScalar(0);
+            scene.add(model);
+            gsap.to(model.scale, {
+              x: scale, y: scale, z: scale,
+              duration: 0.8,
+              ease: 'back.out(1.4)',
+              delay: 0.1
+            });
+          } else {
+            scene.add(model);
+          }
+
+          currentMesh = model;
+          isLoading = false;
+          hideLoading();
+          controls.autoRotate = true;
+        },
+        function(progress) {
+          if (progress.total > 0) {
+            var pct = Math.round((progress.loaded / progress.total) * 100);
+            loadingWatchSub.textContent = 'Loading — ' + pct + '%';
+          }
+        },
+        function(err) {
+          console.warn('[Le Vender] Model load error for ' + modelData.file + ':', err.message || err);
+          isLoading = false;
+          showError(modelData);
+        }
+      );
+    } catch(e) {
+      console.warn('[Le Vender] Loader exception:', e.message || e);
+      isLoading = false;
+      showError(modelData);
+    }
+  }
+
+  // Tabs
+  var tabs = document.querySelectorAll('.watch-tab');
+  tabs.forEach(function(tab, idx) {
+    tab.addEventListener('click', function() {
+      if (idx === currentModelIndex && !isLoading) return;
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      loadModel(idx);
+    });
+  });
+
+  // Resize handler
+  function onResize() {
+    var w = wrapper.clientWidth;
+    var h = wrapper.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  }
+  window.addEventListener('resize', onResize, { passive: true });
+  onResize();
+
+  // Animation loop
+  var clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    var delta = clock.getDelta();
+    controls.update();
+    if (currentMesh) {
+      currentMesh.rotation.y += delta * 0.15;
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Load first model
+  loadModel(0);
+})();
+
+// ============================================================
+// SECTION I: LUCIDE ICONS INIT
+// ============================================================
+(function() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  } else {
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
